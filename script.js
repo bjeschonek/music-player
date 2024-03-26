@@ -4,6 +4,10 @@ const image = document.querySelector('img');
 const title = document.getElementById('title');
 const artist = document.getElementById('artist');
 const music = document.querySelector('audio');
+const progressBar = document.getElementById('progress-container');
+const progress = document.getElementById('progress');
+const currentTimeElement = document.getElementById('current-time');
+const durationElement = document.getElementById('duration');
 const previousButton = document.getElementById('prev');
 const playButton = document.getElementById('play');
 const nextButton = document.getElementById('next');
@@ -86,5 +90,38 @@ function prevSong() {
 
 loadSong(musicLibrary[0]);
 
+//Updating progress bar and time
+function updateProgressBar(event) {
+    if (isPlaying) {
+        const { duration, currentTime} = event.srcElement;
+        const progressPercent = (currentTime/duration) * 100;
+        progress.style.width = `${progressPercent}%`;
+        const durationMinutes = Math.floor(duration / 60);
+        let durationSeconds = Math.floor(duration % 60);
+        if (durationSeconds < 10) {
+            durationSeconds = `0${durationSeconds}`;
+        }
+        if (durationSeconds) {
+            durationElement.textContent = `${durationMinutes}:${durationSeconds}`;
+        }
+        const currentMinutes = Math.floor(currentTime/60);
+        let currentSeconds = Math.floor(currentTime%60);
+        if (currentSeconds < 10) {
+            currentSeconds = `0${currentSeconds}`;
+        }
+        currentTimeElement.textContent = `${currentMinutes}:${currentSeconds}`;
+    }
+}
+
+function setProgressBar(event) {
+    const width = this.clientWidth;
+    const clickX = event.offsetX;
+    const { duration } = music;
+    music.currentTime = (clickX / width) * duration;
+}
+
 previousButton.addEventListener('click', prevSong);
 nextButton.addEventListener('click', nextSong);
+music.addEventListener('ended', nextSong);
+music.addEventListener('timeupdate', updateProgressBar)
+progressBar.addEventListener('click', setProgressBar);
